@@ -38,6 +38,11 @@ public class MainActivity extends AppCompatActivity
                     Intent myIntent = new Intent(getApplicationContext(), OptionActivity.class);
                     startActivity(myIntent);
                 }
+                else if (i == 1)
+                {
+                    Intent myIntent = new Intent(getApplicationContext(), AddInventory.class);
+                    startActivity(myIntent);
+                }
                 else
                 {
                     Intent myIntent = new Intent(getApplicationContext(), Inventory.class);

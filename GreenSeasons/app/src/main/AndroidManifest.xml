@@ -10,8 +10,7 @@
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
-
-        <activity android:name=".MainActivity"></activity>
+        <activity android:name=".MainActivity" />
         <activity android:name=".OptionActivity" />
         <activity android:name=".OrderDetail" />
         <activity android:name=".Inventory" />
@@ -22,6 +21,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".AddInventory"></activity>
     </application>
 
 </manifest>

@@ -20,6 +20,7 @@ public class OrderDetail extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
+        setTheme(R.style.AppTheme);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_order_detail);
         ListView detailList = ((ListView) findViewById(R.id.detailList));
