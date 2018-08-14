@@ -224,7 +224,6 @@ public class AddInventory extends AppCompatActivity
 
             PostSender sendPostData = new PostSender();
             String serverResponse = sendPostData.execute("http://" + info.getServerIP() + "/ds.php", data).get();
-            Log.i("test", serverResponse);
             checkServerResponse(serverResponse);
         }
         catch (Exception e)
