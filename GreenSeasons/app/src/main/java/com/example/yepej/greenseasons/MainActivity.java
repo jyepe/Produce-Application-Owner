@@ -20,6 +20,7 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         info = InstanceInfo.getInstance();
+        //info.setServerIP("192.168.1.109");
         info.setServerIP("10.1.10.72");
         setOptionListListner();
     }

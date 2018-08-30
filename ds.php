@@ -186,7 +186,6 @@
 		$conn->close();
 	}
 
-	
 	function insertOrder()
 	{
 		global $conn;
@@ -323,14 +322,11 @@
 		$flag = 1;
 		
 		$count = urldecode($_POST['count']) ;
-
 		for ($i=1; $i <= $count; $i++) 
 		{ 
 			$quantity = urldecode($_POST['qty' . $i]) ;
 			$id = urldecode($_POST['itemID' . $i]) ;
-
 			$sql = "SET @CURRENT_QTY = (SELECT ON_HAND FROM INVENTORY WHERE ID = $id);";
-
 			if ($conn->query($sql) === TRUE) 
 			{
 	    		//echo "success";
@@ -340,11 +336,9 @@
 				$flag = 0;
 	    		//echo "Error updating record: " . $conn->error;
 			}
-
 			$sql = "UPDATE INVENTORY
 				SET ON_HAND = $quantity + @CURRENT_QTY
 				WHERE ID = $id;";
-
 			if ($conn->query($sql) === TRUE) 
 			{
 	    		//echo "success";
@@ -355,7 +349,6 @@
 	    		//echo "Error updating record: " . $conn->error;
 			}
 		}
-
 		if ($flag == 1)
 		{
 			echo "success";
@@ -364,10 +357,168 @@
 		{
 			echo "error";
 		}
+		$conn->close();
+	}
+
+	function getUserOrders()
+	{
+		global $conn;
+
+		$customer = urldecode($_POST['ID']);
+
+		$sql = "SET @CUSTOMER = $customer;";
+
+		if ($conn->query($sql) === TRUE) 
+		{
+			//echo "New record created successfully";
+		} 
+		else 
+		{
+			echo "Error: " . $sql . "<br>" . $conn->error;
+		}
+
+		$sql = "
+		SELECT 
+			CONCAT('ORDER #: ',  ID, '   ', DATE_FORMAT(TIME, \"%M %D, %Y\")) AS INFO
+		FROM
+			MASTER_ORDERS
+		WHERE
+			CUSTOMER = $customer;";
+
+		$result = $conn->query($sql);
+
+		if ($result->num_rows > 0) 
+		{
+			echo "start:INFO"; 
+	    	// output data of each row
+	    	while($row = $result->fetch_assoc()) 
+	    	{
+				echo $row["INFO"] . "-";
+    		}
+			echo "end:INFO";
+		}
+		else
+		{
+		    echo "0 results";
+		}
 
 		$conn->close();
 	}
 
+	function getSingleOrder()
+	{
+		global $conn;
+
+		$order = urldecode($_POST['ID']);
+
+		$sql = "
+		SET @ORDER_ID = $order;
+			";
+
+		if ($conn->query($sql) === FALSE) {
+			echo "Error: " . $sql . "<br>" . $conn->error;
+		}
+
+		$sql = "
+		SELECT
+			CONCAT(
+			INVENTORY.NAME, '  (',
+			ORDERS.QUANTITY, ' x $',
+			ORDERS.PRICE, ')   =  $',
+			(ORDERS.QUANTITY * ORDERS.PRICE)
+			) AS ITEM
+		FROM
+			ORDERS JOIN INVENTORY ON ORDERS.ITEM = INVENTORY.ID
+		WHERE
+			ORDERS.ID = @ORDER_ID;";
+
+		$result = $conn->query($sql);
+
+		if ($result->num_rows > 0) 
+		{
+			echo "start:ITEM"; 
+	    	// output data of each row
+	    	while($row = $result->fetch_assoc()) 
+	    	{
+				echo $row["ITEM"] . "-";
+    		}
+			echo "end:ITEM";
+		}
+		else
+		{
+		    echo "0 results";
+		}
+
+		$sql = "
+		SELECT
+			SUM(QUANTITY * PRICE) AS TOTAL
+		FROM
+			ORDERS
+		WHERE
+			ORDERS.ID = @ORDER_ID;";
+	
+		$result = $conn->query($sql);
+
+		if ($result->num_rows > 0) 
+		{
+			echo "start:TOTAL"; 
+	    	// output data of each row
+	    	while($row = $result->fetch_assoc()) 
+	    	{
+				echo $row["TOTAL"];
+    		}
+			echo "end:TOTAL";
+		}
+		else
+		{
+		    echo "0 results";
+		}
+
+	}
+
+	function sendNotification()
+	{
+		
+		#API access key from Google API's Console
+   		define( 'API_ACCESS_KEY', 'AAAAIBjg0NA:APA91bGQ3U4XKME5PB2vKtGdFdnIOg-JRejdU4R5le_-yRzhHaAJ7ppWYPap4iEBY2ksGqGz88EZvivYgwMcwgeSjUkv3eVYORh42mQa4A-0gXY4ijb8-9b8GAji_FRibtNv73m2TcgEseIOgWCagfxS8tKaTeeBUQ' );
+
+    	$registrationIds = urldecode($_POST['ID']);
+
+		#prep the bundle
+     	//$msg = array
+        //(
+    	//	'body' 	=> 'Body  Of Notification',
+		//	'title'	=> 'Title Of Notification'
+        //);
+
+	    $fields = array
+		(
+			'to'		=> $registrationIds
+			//'notification'	=> $msg
+		);
+	
+	
+		$headers = array
+		(
+			'Authorization: key=' . API_ACCESS_KEY,
+			'Content-Type: application/json'
+		);
+
+		#Send Reponse To FireBase Server	
+		$ch = curl_init();
+		curl_setopt( $ch,CURLOPT_URL, 'https://fcm.googleapis.com/fcm/send' );
+		curl_setopt( $ch,CURLOPT_POST, true );
+		curl_setopt( $ch,CURLOPT_HTTPHEADER, $headers );
+		curl_setopt( $ch,CURLOPT_RETURNTRANSFER, true );
+		curl_setopt( $ch,CURLOPT_SSL_VERIFYPEER, false );
+		curl_setopt( $ch,CURLOPT_POSTFIELDS, json_encode( $fields ) );
+		$result = curl_exec($ch );
+		curl_close( $ch );
+
+		#Echo Result Of FireBase Server
+		echo $result;
+
+	}
 
 	if ($method == 'login')
 	{
@@ -400,6 +551,18 @@
 	else if ($method == 'updateInventory')
 	{
 		updateInventory();
+	}
+	else if ($method == 'getUserOrders')
+	{
+		getUserOrders();
+	}
+	else if ($method == 'getSingleOrder')
+	{
+		getSingleOrder();
+	}
+	else if ($method == 'sendNotification')
+	{
+		sendNotification();
 	}
 
 ?>
