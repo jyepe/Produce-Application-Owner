@@ -4,6 +4,7 @@
         <item>View Orders</item>
         <item>Add Inventory</item>
         <item>View Inventory</item>
+        <item>Login as company</item>
     </string-array>
 
     <string-array name="qtySpinnerItems">

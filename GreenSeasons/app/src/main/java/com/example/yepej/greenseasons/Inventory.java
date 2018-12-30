@@ -20,7 +20,7 @@ public class Inventory extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
-        setTheme(R.style.AppTheme);
+        setTheme(R.style.AppTheme2);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_inventory);
         info = InstanceInfo.getInstance();

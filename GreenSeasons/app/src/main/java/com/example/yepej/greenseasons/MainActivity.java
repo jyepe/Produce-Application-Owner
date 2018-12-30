@@ -16,12 +16,12 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
-        setTheme(R.style.AppTheme);
+        setTheme(R.style.AppTheme2);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         info = InstanceInfo.getInstance();
         //info.setServerIP("192.168.1.109");
-        info.setServerIP("10.1.10.72");
+        info.setServerIP("10.1.10.73");
         setOptionListListner();
     }
 
@@ -44,9 +44,14 @@ public class MainActivity extends AppCompatActivity
                     Intent myIntent = new Intent(getApplicationContext(), AddInventory.class);
                     startActivity(myIntent);
                 }
-                else
+                else if (i == 2)
                 {
                     Intent myIntent = new Intent(getApplicationContext(), Inventory.class);
+                    startActivity(myIntent);
+                }
+                else if (i == 3)
+                {
+                    Intent myIntent = new Intent(getApplicationContext(), Companies.class);
                     startActivity(myIntent);
                 }
             }

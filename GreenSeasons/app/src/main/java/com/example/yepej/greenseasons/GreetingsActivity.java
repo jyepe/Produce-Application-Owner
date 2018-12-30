@@ -1,6 +1,7 @@
 package com.example.yepej.greenseasons;
 
 import android.content.Intent;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -20,14 +21,7 @@ public class GreetingsActivity extends AppCompatActivity
 
         setLayoutListner();
         animateActivity();
-        hideStatusBar();
-    }
-
-    private void hideStatusBar()
-    {
-        View decorView = getWindow().getDecorView();
-        int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
-        decorView.setSystemUiVisibility(uiOptions);
+        //hideStatusBar();
     }
 
     private void animateActivity()
@@ -41,7 +35,8 @@ public class GreetingsActivity extends AppCompatActivity
 
     private void setLayoutListner()
     {
-        RelativeLayout layout = ((RelativeLayout) findViewById(R.id.activity_greetings));
+        
+        ConstraintLayout layout = ((ConstraintLayout) findViewById(R.id.activity_greetings));
 
         layout.setOnClickListener(new View.OnClickListener()
         {

@@ -1,5 +1,6 @@
 package com.example.yepej.greenseasons;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -20,27 +21,35 @@ import java.net.URLEncoder;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class AddInventory extends AppCompatActivity
+public class ItemsList extends AppCompatActivity
 {
     InstanceInfo info;
-    String[] inventoryList;
+    String[] itemList;
     int[] selectionList;
     int[] colorList;
+    String uid;
+
+    static class ViewHolder
+    {
+        TextView holderText;
+        Spinner holderSpinner;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         setTheme(R.style.AppTheme2);
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_inventory);
-
         info = InstanceInfo.getInstance();
+        Intent intent = getIntent();
+        uid = intent.getStringExtra("UID");
+        setContentView(R.layout.activity_items_list);
+        ListView itemsListView = findViewById(R.id.itemsListView);
 
-        ListView listView = ((ListView) findViewById(R.id.inventoryListView));
         getItems();
         setColorsList();
-        CustomAdapter adapter = new CustomAdapter(inventoryList);
-        listView.setAdapter(adapter);
+        CustomAdapter adapter = new CustomAdapter(itemList);
+        itemsListView.setAdapter(adapter);
     }
 
     //Gets all inventory items from DB
@@ -50,8 +59,11 @@ public class AddInventory extends AppCompatActivity
 
         try
         {
-            String data = URLEncoder.encode("method", info.getEncodeFormat()) + "=" + URLEncoder.encode("getItems", info.getEncodeFormat());
-            data += "&" + URLEncoder.encode("type", info.getEncodeFormat()) + "=" + URLEncoder.encode("", info.getEncodeFormat());
+            String data = URLEncoder.encode("method", info.getEncodeFormat()) + "=" +
+                                            URLEncoder.encode("getItems", info.getEncodeFormat());
+            data += "&" + URLEncoder.encode("type", info.getEncodeFormat()) + "=" +
+                                                    URLEncoder.encode("", info.getEncodeFormat());
+
             String serverResponse = sendPostData.execute("http://" + info.getServerIP() + "/ds.php", data).get();
             parseResponse(serverResponse);
         }
@@ -70,11 +82,11 @@ public class AddInventory extends AppCompatActivity
 
         while (m.find())
         {
-            inventoryList = m.group(1).split(",");
+            itemList = m.group(1).split(",");
         }
 
-        selectionList = new int[inventoryList.length];
-        colorList = new int[inventoryList.length];
+        selectionList = new int[itemList.length];
+        colorList = new int[itemList.length];
     }
 
     //Sets all elements in the colors array to black
@@ -84,12 +96,6 @@ public class AddInventory extends AppCompatActivity
         {
             colorList[i] = Color.BLACK;
         }
-    }
-
-    static class ViewHolder
-    {
-        TextView holderText;
-        Spinner holderSpinner;
     }
 
     //region Custom Adapter
@@ -129,12 +135,12 @@ public class AddInventory extends AppCompatActivity
 
             if (convertView == null)
             {
-                convertView = getLayoutInflater().inflate(R.layout.custom_add_inventory_layout, null);
+                convertView = getLayoutInflater().inflate(R.layout.custom_items_list_layout, null);
                 holder = new ViewHolder();
 
 
-                holder.holderText = ((TextView) convertView.findViewById(R.id.text));
-                holder.holderSpinner = ((Spinner) convertView.findViewById(R.id.spinner));
+                holder.holderText = ((TextView) convertView.findViewById(R.id.list_item));
+                holder.holderSpinner = ((Spinner) convertView.findViewById(R.id.quantity));
 
                 convertView.setTag(holder);
             }
@@ -162,6 +168,7 @@ public class AddInventory extends AppCompatActivity
             holder.holderSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener()
             {
                 @Override
+
                 public void onItemSelected(AdapterView<?> parent, View view, int qtySelected, long id)
                 {
                     int selectedItem = (int) finalHolder.holderSpinner.getTag();
@@ -195,7 +202,7 @@ public class AddInventory extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu)
     {
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.custom_menu, menu);
+        inflater.inflate(R.menu.custom_item_menu, menu);
 
         return true;
     }
@@ -205,7 +212,11 @@ public class AddInventory extends AppCompatActivity
     {
         try
         {
-            String data = URLEncoder.encode("method", info.getEncodeFormat()) + "=" + URLEncoder.encode("updateInventory", info.getEncodeFormat());
+            String data = URLEncoder.encode("method", info.getEncodeFormat()) + "=" +
+                                            URLEncoder.encode("newOrder", info.getEncodeFormat());
+            data += "&" + URLEncoder.encode("company", info.getEncodeFormat()) + "=" +
+                                        URLEncoder.encode(uid, info.getEncodeFormat());
+
             int count = 0;
 
 
@@ -214,8 +225,8 @@ public class AddInventory extends AppCompatActivity
                 if (selectionList[i] != 0)
                 {
                     count++;
+                    data += "&" + URLEncoder.encode("item" + count, info.getEncodeFormat()) + "=" + URLEncoder.encode(itemList[i], info.getEncodeFormat());
                     data += "&" + URLEncoder.encode("qty" + count, info.getEncodeFormat()) + "=" + URLEncoder.encode(Integer.toString(selectionList[i]), info.getEncodeFormat());
-                    data += "&" + URLEncoder.encode("itemID" + count, info.getEncodeFormat()) + "=" + URLEncoder.encode(Integer.toString(i + 1), info.getEncodeFormat());
                 }
             }
 
@@ -224,6 +235,7 @@ public class AddInventory extends AppCompatActivity
 
             PostSender sendPostData = new PostSender();
             String serverResponse = sendPostData.execute("http://" + info.getServerIP() + "/ds.php", data).get();
+            Log.i("test", serverResponse);
             checkServerResponse(serverResponse);
         }
         catch (Exception e)
@@ -239,11 +251,11 @@ public class AddInventory extends AppCompatActivity
     {
         if (response.trim().equalsIgnoreCase("success"))
         {
-            Toast.makeText(this, "Added inventory items", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Order complete", Toast.LENGTH_SHORT).show();
         }
         else
         {
-            Toast.makeText(this, "Error in adding inventory items.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Error in creating order.", Toast.LENGTH_SHORT).show();
         }
     }
     //endregion
