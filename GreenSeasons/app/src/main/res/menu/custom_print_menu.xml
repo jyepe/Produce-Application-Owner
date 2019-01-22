@@ -3,7 +3,7 @@
     xmlns:GreenSeasons="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:title="Print Report"
+        android:title="View Report"
         GreenSeasons:showAsAction="always"
         android:id="@+id/submitOrderButton"
         />

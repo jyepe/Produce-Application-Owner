@@ -1,6 +1,9 @@
 package com.example.yepej.greenseasons;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Environment;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -166,7 +169,32 @@ public class OrderDetail extends AppCompatActivity
             WritableWorkbook wb = Workbook.createWorkbook(new File(getExternalFilesDir(null),
                     "Invoice.xls"), wbSettings);
 
+
+
+
+
             ExcelInvoice invoice = new ExcelInvoice(wb, orderID, orderDetailList);
+
+            File file = new File(getFilesDir(), "hello.txt");
+
+
+
+
+            File l = getExternalFilesDir(null);
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            Uri apkURI = FileProvider.getUriForFile(
+                    this,
+                    this.getApplicationContext().getPackageName() + ".provider",
+                    new File(l.list()[0]));
+
+            intent.setDataAndType(apkURI,"*/*");
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+            startActivity(intent);
+
+
+
         }
         catch (IOException e)
         {
